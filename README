@@ -1,0 +1,68 @@
+Build:
+
+make
+
+Install:
+
+make install
+
+Run: 
+
+./shell
+
+---
+
+Supported built in commands:
+
+* exit
+* pid
+* ppid
+* cd [directory] (with and without arguments, i.e. cd with no args to cd to $HOME)
+* pwd
+* jobs
+* set VAR [value]
+* get VAR
+
+Other commands are handled via $PATH searching and summary execution.
+
+Supported features:
+
+* Output redirection to a file via '>'
+* Backgrounding of a child process via '&'
+
+---
+
+Notes:
+
+* The 'get' syntax is as per
+
+	get HOME
+
+rather than the Bourne standard of
+
+	echo $HOME
+
+* Similarly 'set' syntax is as per
+
+	set HOME /home/seh
+
+rather than the Bourne standard of
+
+	HOME=/home/seh
+
+Notice: Set must be used with one space after set and one space after the variable name (if a value is to be assigned). Additionally, values for variables being set must not begin with a whitespace character. 
+
+* Output redirection to a file can be done as per
+
+	pwd > test
+
+or
+
+	echo hi >test
+
+Notice: A space must separate the command and the '>' character as to define that redirection is intended. Redirection to things other than files or usage of '<' is not supported. 
+
+* Backgrounding is done via adding an ampersand (&) to the end of a command. The ampersand must have a space preceding it as to define that backgrounding is intended.
+
+Notice: Backgrounding with redirection to a file works! Try: cat /dev/urandom > mytestfile &. Additionally, if you wish to background a process, allow no stray whitespace after the & symbol.
+
