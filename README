@@ -1,14 +1,14 @@
 Build:
 
-make
+mk
 
 Install:
 
-make install
+mk install
 
 Run: 
 
-./shell
+./6.out
 
 ---
 
@@ -19,11 +19,11 @@ Supported built in commands:
 * ppid
 * cd [directory] (with and without arguments, i.e. cd with no args to cd to $HOME)
 * pwd
-* jobs
+--* jobs--
 * set VAR [value]
 * get VAR
 
-Other commands are handled via $PATH searching and summary execution.
+Other commands are handled via $path searching and summary execution.
 
 Supported features:
 
@@ -36,19 +36,19 @@ Notes:
 
 * The 'get' syntax is as per
 
-	get HOME
+	get home
 
 rather than the Bourne standard of
 
-	echo $HOME
+	echo $home
 
 * Similarly 'set' syntax is as per
 
-	set HOME /home/seh
+	set home /usr/seh
 
 rather than the Bourne standard of
 
-	HOME=/home/seh
+	HOME=/usr/seh
 
 Notice: Set must be used with one space after set and one space after the variable name (if a value is to be assigned). Additionally, values for variables being set must not begin with a whitespace character. 
 
@@ -58,11 +58,11 @@ Notice: Set must be used with one space after set and one space after the variab
 
 or
 
-	echo hi >test
+	echo ☺ >test
 
 Notice: A space must separate the command and the '>' character as to define that redirection is intended. Redirection to things other than files or usage of '<' is not supported. 
 
 * Backgrounding is done via adding an ampersand (&) to the end of a command. The ampersand must have a space preceding it as to define that backgrounding is intended.
 
-Notice: Backgrounding with redirection to a file works! Try: cat /dev/urandom > mytestfile &. Additionally, if you wish to background a process, allow no stray whitespace after the & symbol.
+Notice: Backgrounding with redirection to a file works! Try: cat /dev/random > mytestfile &. Additionally, if you wish to background a process, allow no stray whitespace after the & symbol.
 
