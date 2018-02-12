@@ -370,8 +370,8 @@ main(int argc, char** argv)
 						for (i = 0; i < ndents; i++){
 							if(strcmp(dents[i].name, *args) == 0){
 								// Found command
-								err = exec(strcat(path[j], strcat("/", *args)), args);
 								free(dents);
+								err = exec(strcat(path[j], strcat("/", *args)), args);
 								goto PATHD;
 							}
 						}
