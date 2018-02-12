@@ -9,6 +9,7 @@ typedef struct Proc Proc;
 struct Proc {
 	int		pid;
 	char*	name;
+	char*	status;
 };
 
 /* List (Queue) Architecture */
