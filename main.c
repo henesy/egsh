@@ -7,14 +7,14 @@
 void	split(char* line, char** out);
 int	findpid(void* Node, void* pid);
 
-/* shell is a novel shell written by seh for CPRE 308 section G */
+/* egsh is the EGGshell ported to Plan 9 -- now UTF-8 compliant! */
 void
 main(int argc, char** argv)
 {
+	char* version = "v1.0 -- Plan 9 Took Our Jobs Edition.";
 	char* prompt = nil;
 	int debug = false;
 	List jobs = mklist();
-	// This is standard out
 	int fd;
 
 	/* arg processing */
@@ -28,6 +28,9 @@ main(int argc, char** argv)
 		case 'h':
 			print("usage: %s [-p prompt] [-d]\n", argv0);
 			exits("It's usage, Watson.");
+		case 'v':
+			print("%s\n", version);
+			exits("What year is it?");
 		default:
 			print("badflag('%c')\n", ARGC());
 			exits("Badflag in Baghdad.");
