@@ -1,7 +1,10 @@
 #ifndef SHELL_H
 #define SHELL_H
+
 #define true 1
 #define false 0
+
+#define BUFSIZE 256
 
 /* Process Architecture */
 typedef struct Proc Proc;

@@ -5,7 +5,7 @@
 
 /* function prototype bloc */
 void	split(char* line, char** out);
-int	findpid(void* Node, void* pid);
+int		findpid(void* Node, void* pid);
 
 /* egsh is the EGGshell ported to Plan 9 -- now UTF-8 compliant! */
 void
@@ -50,7 +50,7 @@ main(int argc, char** argv)
 	/* loop */
 	int run = true;
 	while(run){
-		char in[256];
+		char in[BUFSIZE];
 		//Waitmsg* bgm;
 		int redir = -1;
 		int outf = -1;
@@ -66,7 +66,7 @@ main(int argc, char** argv)
 			fprint(fd, "%s", prompt);
 
 		/* read input */
-		for(i = 0; i < 256; i++){
+		for(i = 0; i < BUFSIZE; i++){
 			long c = Bgetrune(bp);
 			if(c == '\n'){
 				in[i] = '\0';
@@ -90,7 +90,7 @@ main(int argc, char** argv)
 		}
 		
 		/* check if we'll background the child */
-		long len = 256.0;
+		long len = BUFSIZE;
 		int bg = false;
 		if(in[len-1] == '&'){
 			bg = true;
@@ -99,9 +99,9 @@ main(int argc, char** argv)
 		
 		/* check for > redirection (this is hardcoded and bad, but works) */
 		if(redir > 0){
-			char* full = calloc(256, sizeof(char));
+			char* full = calloc(BUFSIZE, sizeof(char));
 			strcpy(full, in+redir);
-			char* fname[256];
+			char* fname[BUFSIZE];
 			if(debug)
 				fprint(2, "redir to split: %s\n", full);
 			split(full, fname);
@@ -160,8 +160,8 @@ main(int argc, char** argv)
 				fprint(2, "Error changing current working directory.\n");
 
 		}else if(strncmp(in, "cd ", 3) == 0){
-			char* buf = calloc(253, sizeof(char));
-			strncpy(buf, in+3, 253);
+			char* buf = calloc(BUFSIZE-3, sizeof(char));
+			strncpy(buf, in+3, BUFSIZE-3);
 			if(debug)
 				fprint(2, "cd to: %s\n", buf);
 			if(chdir(buf) < 0)
@@ -169,8 +169,8 @@ main(int argc, char** argv)
 			free(buf);
 
 		}else if(strncmp(in, "pwd", 3) == 0){
-			char* buf = calloc(256, sizeof(char));
-			if(buf == getwd(buf, 256))
+			char* buf = calloc(BUFSIZE, sizeof(char));
+			if(buf == getwd(buf, BUFSIZE))
 				fprint(fd, "%s\n", buf);
 			else
 				fprint(2, "Error getting current working directory.\n");
@@ -204,13 +204,13 @@ main(int argc, char** argv)
 
 		}else if(strncmp(in, "set", 3) == 0){
 			/* get and set are kind of a mess */
-			char* full = calloc(256, sizeof(char));
+			char* full = calloc(BUFSIZE, sizeof(char));
 			strcpy(full, in);
-			char* out[256];
+			char* out[BUFSIZE];
 			split(full, out);
 			if(debug)
 				fprint(2, "in: %s ;; out: %s\n", in, out[1]);
-			for(i = 1; i < 256; i++){
+			for(i = 1; i < BUFSIZE; i++){
 				if(out[i] == nil){
 					if(debug)
 						fprint(2, "No args at/past %d\n", i);
@@ -227,7 +227,7 @@ main(int argc, char** argv)
 			}
 			
 			char* name = out[1];
-			char* value = calloc(252, sizeof(char));
+			char* value = calloc(BUFSIZE-4, sizeof(char));
 			// The array location of the first char of the value: 'set home x/usr/seh'
 			int valuePos = 0;
 			int err = 0;
@@ -242,7 +242,7 @@ main(int argc, char** argv)
 				continue;
 			}
 			
-			for(i = 4; i < 256; i++){
+			for(i = 4; i < BUFSIZE; i++){
 				if(in[i] == ' '){
 					valuePos = i+1;
 					if(debug)
@@ -250,7 +250,7 @@ main(int argc, char** argv)
 					break;
 				}
 				
-				if(i == 255){
+				if(i == BUFSIZE-1){
 					fprint(2, "Error. Please  specify a variable.\n");
 					err = 1;
 					free(value);
@@ -273,7 +273,7 @@ main(int argc, char** argv)
 			}
 				
 			if(!clear){
-				strncpy(value, in+valuePos, 255-valuePos);
+				strncpy(value, in+valuePos, BUFSIZE-1-valuePos);
 				if(debug)
 					fprint(2, "Value: %s\n", value);
 
@@ -286,7 +286,7 @@ main(int argc, char** argv)
 				if(debug)
 					fprint(2, "Name: %s\n", name);
 				
-				char envf[256];
+				char envf[BUFSIZE];
 				sprint(envf, "/env/%s", name);
 				remove(envf);
 			}
@@ -295,7 +295,7 @@ main(int argc, char** argv)
 			free(full);
 
 		}else if(strncmp(in, "get", 3) == 0){
-			char* name = calloc(252, sizeof(char));
+			char* name = calloc(BUFSIZE-4, sizeof(char));
 			char* value;
 			if((int)strlen(in) < 4){
 				fprint(2, "Error. Please specify a variable to get.\n");
@@ -303,7 +303,7 @@ main(int argc, char** argv)
 				continue;
 			}
 			
-			strncpy(name, in+4, 252);
+			strncpy(name, in+4, BUFSIZE-4);
 			value = getenv(name);
 			if(value == nil){
 				if(name[0] == ' ' || name[0] == '\t')
@@ -325,7 +325,7 @@ main(int argc, char** argv)
 				fprint(2, "Searching for command…\n");
 
 			// Process command
-			char* args[256];
+			char* args[BUFSIZE];
 			split(in, args);
 			
 			// Handle fork
@@ -336,7 +336,7 @@ main(int argc, char** argv)
 				exits("Error forking.");
 			}else if(pid == 0){
 				// Child
-				if(!prompt)
+				if(!noprompt)
 					fprint(2, "[%d] %s\n", getpid(), *args);
 				dup(fd, 1);
 
@@ -344,7 +344,7 @@ main(int argc, char** argv)
 					goto NOSRCH;
 				
 				// Search $path
-				char* path[256];
+				char* path[BUFSIZE];
 				char* opath;
 				int err;
 
@@ -354,7 +354,7 @@ main(int argc, char** argv)
 				split(opath, path);
 				
 				int j;
-				for(j = 0; j < 256; j++){
+				for(j = 0; j < BUFSIZE; j++){
 					if(path[j] == nil){
 						fprint(2, "Command not in $path. Provide full path.\n");
 						break;
@@ -395,7 +395,7 @@ main(int argc, char** argv)
 					Waitmsg* m;
 
 					while(m = wait()){
-						if(!prompt)
+						if(!noprompt)
 							fprint(2, "[%d] %s\n", m->pid, m->msg);
 						if (m->pid == pid){
 							free(m);
@@ -407,7 +407,7 @@ main(int argc, char** argv)
 					// Add bg child to jobs list
 					Proc* p = malloc(sizeof(Proc));
 					p->pid = pid;
-					char cmd[256];
+					char cmd[BUFSIZE];
 					strcpy(cmd, *args);
 					p->name = cmd;
 					ladd(&jobs, p);
