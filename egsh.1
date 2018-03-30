@@ -1,0 +1,151 @@
+.TH DRAWTERM 1
+
+.SH NAME
+egsh  \- toy shell written for an OS class
+
+.SH SYNOPSIS
+.B egsh
+[
+.B -P
+] [
+.B -p
+.I prompt
+] [
+.B -d
+]
+
+.SH DESCRIPTION
+.I Egsh
+is a toy shell with minimal features re-implemented from C89 to Plan 9 C.
+
+Some input redirection is supported with only one level and only to files. That is, output to a file can be performed using the
+.I >
+operator. Additionally, one can background a process with the
+.I &
+operator. 
+
+.PP
+The options are:
+.PD
+
+.TP
+.B -P
+Disable the printing of the prompt and pid-tracking tags.
+
+.TP
+.B -h \fIprompt
+Use \fIprompt\fR as the printed prompt. The default prompt '308sh> '.
+
+.TP
+.B -d
+Enable debug mode.
+
+.PP
+.SH BUILTINS
+.TP
+.B cd \fR[\fIpath\fR]
+
+Change directory to a given
+.I path\fR.
+If no path is specified,
+.I path
+is set to $home.
+
+.TP
+.B exit
+
+Exit the shell and print a cute message.
+
+
+.TP
+.B pid
+
+Get the pid of the main shell process.
+
+.TP
+.B ppid
+
+Get the pid of the parent (calling) process of the main shell process.
+
+.TP
+.B pwd
+
+Print the current working directory.
+
+.TP
+.B jobs
+
+List currently running jobs for the shell. Note: This is presently broken on Plan 9 and is a work in progress.
+
+.TP 
+.B set \fIname\fR [\fIvalue\fR]
+
+Assign
+.I value
+to the given environment variable
+.I name\fR.
+If no value is specified, the
+.I value
+(if any) is cleared.
+
+.TP
+.B get \fIname
+
+Print the value of the given environment variable
+.I name\fR.
+
+.PP
+.SH SERVICES
+.I Soon\fR.™
+
+.PP
+.SH EXAMPLES
+Start a new egg shell session using '☺> ' as the prompt:
+.IP
+.EX
+egsh -p '☺> '
+.EE
+.PP
+
+Run
+.IR ls (1)
+in the background and redirect its output to a file named
+.I out.log\fR:
+.IP
+.EX
+308sh> ls / > out.log &
+.EE
+.PP
+
+Retrieve the contents of the $home environment variable:
+.IP
+.EX
+308sh> get home
+.EE
+.PP
+
+Set the $font environment variable to pelm:
+.IP
+.EX
+308sh> set font /lib/font/bit/pelm/unicode.9.font
+.EE
+.PP
+
+.PP
+.SH SOURCE
+.B https://bitbucket.org/henesy/egsh
+
+.PP
+.SH "SEE ALSO"
+.IR rc (1)
+
+.PP
+.SH BUGS
+Oh yeah.
+
+.PP
+.SH HISTORY
+.I Egsh
+was originally written for an operating system course in university. Most of the features are unchanged from the original requirements and the style of the shell is a consequence of said requirements.
+
+Many thanks to the grid for playing with and testing the original Plan 9 port. You guys are awesome.
