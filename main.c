@@ -11,7 +11,7 @@ int	findpid(void* Node, void* pid);
 void
 main(int argc, char** argv)
 {
-	char* version = "v1.0 -- Plan 9 Took Our Jobs Edition.";
+	char* version = "v1.1";
 	char* prompt = nil;
 	int debug = false;
 	int noprompt = false;
@@ -216,9 +216,8 @@ main(int argc, char** argv)
 						fprint(2, "No args at/past %d\n", i);
 					break;
 				}
-				if(strlen(out[i]) < 1){
+				if(strlen(out[i]) < 1)
 					break;
-				}
 			}
 			int argloc = i;
 			if(argloc < 2){
@@ -282,7 +281,7 @@ main(int argc, char** argv)
 				if(err < 0)
 					fprint(2, "Error. No variable set!\n");
 			
-			} else {
+			}else{
 				strncpy(name, in+4, valuePos-1);
 				if(debug)
 					fprint(2, "Name: %s\n", name);
@@ -308,7 +307,7 @@ main(int argc, char** argv)
 			value = getenv(name);
 			if(value == nil){
 				if(name[0] == ' ' || name[0] == '\t')
-					fprint(2, "Error. You can't make a variable name out of whitespace. Whitespace for variable naming is considered harmful.\n");
+					fprint(2, "Error. You can't make a variable name out of whitespace.\n");
 				else
 					fprint(2, "Error fetching %s. Is the variable set?\n", name);
 				free(name);
@@ -350,9 +349,8 @@ main(int argc, char** argv)
 				int err;
 
 				opath = getenv("path");
-				if(path == nil){
+				if(path == nil)
 					fprint(2, "Error fetching $path. Is the variable set?\n");
-				}
 				split(opath, path);
 				
 				int j;
@@ -385,13 +383,11 @@ main(int argc, char** argv)
 					}
 				}
 				NOSRCH:;
-				
 
 				err = exec(*args, args);
 				PATHD:;
-				if(err < 0){
+				if(err < 0)
 					exits("Error executing command.");
-				}
 			}else{
 				// Parent
 				if(!bg){
@@ -442,8 +438,7 @@ findpid(void* vproc, void* vpid)
 {
 	Proc* proc = (Proc*)vproc;
 	int* pid = (int*)vpid;
-	if(proc->pid == *pid){
+	if(proc->pid == *pid)
 		return true;
-	}
 	return false;
 }
