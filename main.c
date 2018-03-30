@@ -14,6 +14,7 @@ main(int argc, char** argv)
 	char* version = "v1.0 -- Plan 9 Took Our Jobs Edition.";
 	char* prompt = nil;
 	int debug = false;
+	int noprompt = false;
 	List jobs = mklist();
 	int fd;
 
@@ -26,11 +27,14 @@ main(int argc, char** argv)
 			debug = true;
 			break;
 		case 'h':
-			print("usage: %s [-p prompt] [-d]\n", argv0);
+			print("usage: %s [-P] [-p prompt] [-d]\n", argv0);
 			exits("It's usage, Watson.");
 		case 'v':
 			print("%s\n", version);
 			exits("What year is it?");
+		case 'P':
+			noprompt = true;
+			break;
 		default:
 			print("badflag('%c')\n", ARGC());
 			exits("Badflag in Baghdad.");
@@ -58,11 +62,12 @@ main(int argc, char** argv)
 		
 		// Sleep to prevent output buffer being overrun by bgm->pid printing and prompt
 		sleep(100);
-		fprint(fd, "%s", prompt);
+		if(!noprompt)
+			fprint(fd, "%s", prompt);
 
 		/* read input */
 		for(i = 0; i < 256; i++){
-			Rune c = Bgetrune(bp);
+			long c = Bgetrune(bp);
 			if(c == '\n'){
 				in[i] = '\0';
 				break;
@@ -78,7 +83,7 @@ main(int argc, char** argv)
 		if(debug)
 			fprint(2, "In is: %s\n", in);
 		
-		/* check if , '\004' is EOT */
+		/* check if  */
 		if(in[0] == -1){
 			run = false;
 			continue;
@@ -332,7 +337,8 @@ main(int argc, char** argv)
 				exits("Error forking.");
 			}else if(pid == 0){
 				// Child
-				fprint(2, "[%d] %s\n", getpid(), *args);
+				if(!prompt)
+					fprint(2, "[%d] %s\n", getpid(), *args);
 				dup(fd, 1);
 
 				if((*args)[0] == '/')
@@ -393,7 +399,8 @@ main(int argc, char** argv)
 					Waitmsg* m;
 
 					while(m = wait()){
-						fprint(2, "[%d] %s\n", m->pid, m->msg);
+						if(!prompt)
+							fprint(2, "[%d] %s\n", m->pid, m->msg);
 						if (m->pid == pid){
 							free(m);
 							break;
