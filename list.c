@@ -78,9 +78,9 @@ ldel(List* l, void* tofind, int(*comp)(void *, void *))
 			return true;
 		}
 		
+		prev = n;
 		if(i != l->size-1)
 			n = n->next;
-		prev = n;
 			
 	}
 	return false;
