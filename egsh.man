@@ -1,5 +1,4 @@
-.TH DRAWTERM 1
-
+.TH EGSH 1
 .SH NAME
 egsh  \- toy shell written for an OS class
 

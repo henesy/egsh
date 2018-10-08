@@ -92,6 +92,10 @@ main(int argc, char** argv)
 		/* check if we'll background the child */
 		long len = BUFSIZE;
 		int bg = false;
+		
+		if(debug)
+			print("Len is: %ld\nLast char is: %X ; newline is: %X\n", len, in[len-1], '\n');
+		
 		if(in[len-1] == '&'){
 			bg = true;
 			in[len-2] = '\0';
