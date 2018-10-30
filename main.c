@@ -18,21 +18,6 @@ struct Child {
 };
 
 
-/* nanny function for monitoring bg children and yell rudely when they die */
-void
-nanny(void *child)
-{
-	char childwaitpath[50];
-	int waitfd;
-	char childstatus[128];
-	sprint(childwaitpath, "/proc/%d/wait", *(int*)((Child*)child)->pid);
-	waitfd = open(childwaitpath, OREAD);
-	read(waitfd, childstatus, 128);
-	fprint(2, "\n[%d] exited with: %s\n", *(int*)((Child*)child)->pid, childstatus);
-	ldel(((Child*)child)->l, ((Child*)child)->pid, findpid);
-}
-
-
 /* egsh is the EGGshell ported to Plan 9 -- now UTF-8 compliant! */
 void
 threadmain(int argc, char** argv)
@@ -453,6 +438,7 @@ threadmain(int argc, char** argv)
 	fprint(2, "Goodbye! ☺\n");
 }
 
+
 // Split a command + args to: char**{cmd, arg0, arg1, …, argn} ;; empty slots are nil
 void
 split(char* line, char** out)
@@ -476,4 +462,18 @@ findpid(void* vproc, void* vpid)
 	if(proc->pid == *pid)
 		return true;
 	return false;
+}
+
+/* nanny function for monitoring bg children and yell rudely when they die */
+void
+nanny(void *child)
+{
+	char childwaitpath[50];
+	int waitfd;
+	char childstatus[128];
+	sprint(childwaitpath, "/proc/%d/wait", *(int*)((Child*)child)->pid);
+	waitfd = open(childwaitpath, OREAD);
+	read(waitfd, childstatus, 128);
+	fprint(2, "\n[%d] exited with: %s\n", *(int*)((Child*)child)->pid, childstatus);
+	ldel(((Child*)child)->l, ((Child*)child)->pid, findpid);
 }
