@@ -13,7 +13,8 @@ void	nanny(void *childpid);
 /* pass the list (not thread safe!) and child pid */
 typedef struct Child Child;
 struct Child {
-	int *pid;
+	int *ppid;
+	int *cpid;
 	List* l;
 };
 
@@ -351,7 +352,7 @@ threadmain(int argc, char** argv)
 				exits("Error forking.");
 			}else if(pid == 0){
 				// Launch a supervisor via rfork to wait for the child process -- this blocks so must be a fork
-					// True Child
+					// True Proc
 				if(!noprompt)
 					fprint(2, "[%d] %s\n", getpid(), *args);
 				dup(fd, 1);
@@ -422,8 +423,10 @@ threadmain(int argc, char** argv)
 						free(m);
 					}
 				}else{
-					// Add bg child to jobs list
-					Child child = (Child){&pid, &jobs};
+					// Add a listener for the bg child, 1 per child
+					int *ppid = malloc(1 * sizeof(int));
+					*ppid = getppid();
+					Child child = (Child){ppid, &pid, &jobs};
 					procrfork(nanny, &child, 8*1024, RFNAMEG|RFNOTEG);
 					Proc* p = malloc(sizeof(Proc));
 					p->pid = pid;
@@ -464,16 +467,17 @@ findpid(void* vproc, void* vpid)
 	return false;
 }
 
-/* nanny function for monitoring bg children and yell rudely when they die */
+/* nanny function for monitoring bg children and yell rudely when they die -- this is wrong, see: TODO */
 void
 nanny(void *child)
 {
 	char childwaitpath[50];
 	int waitfd;
 	char childstatus[128];
-	sprint(childwaitpath, "/proc/%d/wait", *(int*)((Child*)child)->pid);
+	sprint(childwaitpath, "/proc/%d/wait", *(int*)((Child*)child)->cpid);
 	waitfd = open(childwaitpath, OREAD);
 	read(waitfd, childstatus, 128);
-	fprint(2, "\n[%d] exited with: %s\n", *(int*)((Child*)child)->pid, childstatus);
-	ldel(((Child*)child)->l, ((Child*)child)->pid, findpid);
+	fprint(2, "\n[%d] exited with: %s\n", *(int*)((Child*)child)->cpid, childstatus);
+	ldel(((Child*)child)->l, ((Child*)child)->cpid, findpid);
+	free(((Child*)child)->ppid);
 }

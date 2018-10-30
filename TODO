@@ -1,0 +1,6 @@
+- nanny should be a single thread which forks with a copy of List *jobs and a channel which is fed backgrounded child PID's to print out to stderr and a file descriptor to print to
+
+- unicode is broken for passing as an argument
+
+- break up code more to be modular and easier to read
+
