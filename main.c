@@ -1,15 +1,41 @@
 #include <u.h>
 #include <libc.h>
 #include <bio.h>
+#include <thread.h>
 #include "shell.h"
 
 /* function prototype bloc */
 void	split(char* line, char** out);
 int		findpid(void* Node, void* pid);
+void	nanny(void *childpid);
+
+
+/* pass the list (not thread safe!) and child pid */
+typedef struct Child Child;
+struct Child {
+	int *pid;
+	List* l;
+};
+
+
+/* nanny function for monitoring bg children and yell rudely when they die */
+void
+nanny(void *child)
+{
+	char childwaitpath[50];
+	int waitfd;
+	char childstatus[128];
+	sprint(childwaitpath, "/proc/%d/wait", *(int*)((Child*)child)->pid);
+	waitfd = open(childwaitpath, OREAD);
+	read(waitfd, childstatus, 128);
+	fprint(2, "\n[%d] exited with: %s\n", *(int*)((Child*)child)->pid, childstatus);
+	ldel(((Child*)child)->l, ((Child*)child)->pid, findpid);
+}
+
 
 /* egsh is the EGGshell ported to Plan 9 -- now UTF-8 compliant! */
 void
-main(int argc, char** argv)
+threadmain(int argc, char** argv)
 {
 	char* version = "v1.1";
 	char* prompt = nil;
@@ -339,7 +365,8 @@ main(int argc, char** argv)
 				fprint(2, "Error forking, are we out of PID\'s?\n");
 				exits("Error forking.");
 			}else if(pid == 0){
-				// Child
+				// Launch a supervisor via rfork to wait for the child process -- this blocks so must be a fork
+					// True Child
 				if(!noprompt)
 					fprint(2, "[%d] %s\n", getpid(), *args);
 				dup(fd, 1);
@@ -392,6 +419,8 @@ main(int argc, char** argv)
 				PATHD:;
 				if(err < 0)
 					exits("Error executing command.");
+
+				// End of child
 			}else{
 				// Parent
 				if(!bg){
@@ -409,6 +438,8 @@ main(int argc, char** argv)
 					}
 				}else{
 					// Add bg child to jobs list
+					Child child = (Child){&pid, &jobs};
+					procrfork(nanny, &child, 8*1024, RFNAMEG|RFNOTEG);
 					Proc* p = malloc(sizeof(Proc));
 					p->pid = pid;
 					char cmd[BUFSIZE];
